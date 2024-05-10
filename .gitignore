@@ -1,0 +1,12 @@
+.idea/
+target/
+!target/lib
+!target/*.jar
+mvnw*
+*.tar.gz
+*.tar
+.attach_pid*
+*.iml
+.mvn/wrapper/
+dependency-reduced-pom.xml
+vertx-start-process.id
