@@ -6,6 +6,18 @@
   <artifactId>tx-manager-parent</artifactId>
   <version>${revision}</version>
   <packaging>pom</packaging>
+
+  <name>TX Manager</name>
+  <description>Provides and transaction management interface and annotations with byte-buddy plugin for compile time byte code updates</description>
+
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub BenSlabbert Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/BenSlabbert/tx-manager</url>
+    </repository>
+  </distributionManagement>
+
   <modules>
     <module>annotation</module>
     <module>plugin</module>
