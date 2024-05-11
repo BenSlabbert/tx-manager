@@ -10,6 +10,12 @@
   <name>TX Manager</name>
   <description>Provides and transaction management interface and annotations with byte-buddy plugin for compile time byte code updates</description>
 
+  <modules>
+    <module>annotation</module>
+    <module>plugin</module>
+    <module>txmanager</module>
+  </modules>
+
   <distributionManagement>
     <repository>
       <id>github</id>
@@ -17,12 +23,6 @@
       <url>https://maven.pkg.github.com/BenSlabbert/tx-manager</url>
     </repository>
   </distributionManagement>
-
-  <modules>
-    <module>annotation</module>
-    <module>plugin</module>
-    <module>txmanager</module>
-  </modules>
 
   <properties>
     <java.version>21</java.version>
