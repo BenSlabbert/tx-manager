@@ -20,6 +20,7 @@
     <module>annotation</module>
     <module>plugin</module>
     <module>txmanager</module>
+    <module>example</module>
   </modules>
 
   <distributionManagement>

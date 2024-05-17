@@ -5,6 +5,8 @@ public interface TransactionManager {
 
   void begin();
 
+  void ensureActive();
+
   void commit();
 
   void rollback();
