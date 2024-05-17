@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>github.benslabbert.txmanager</groupId>
+    <artifactId>tx-manager-parent</artifactId>
+    <version>${revision}</version>
+  </parent>
+
+  <artifactId>example</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>github.benslabbert.txmanager</groupId>
+      <artifactId>annotation</artifactId>
+      <version>${revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>github.benslabbert.txmanager</groupId>
+      <artifactId>txmanager</artifactId>
+      <version>${revision}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy-maven-plugin</artifactId>
+        <configuration>
+          <transformations>
+            <transformation>
+              <groupId>github.benslabbert.txmanager</groupId>
+              <artifactId>plugin</artifactId>
+              <plugin>github.benslabbert.txmanager.plugin.TransactionalAdvicePlugin</plugin>
+              <version>${revision}</version>
+            </transformation>
+          </transformations>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>transform</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

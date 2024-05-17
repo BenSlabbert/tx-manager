@@ -24,6 +24,11 @@ public final class PlatformTransactionManager {
     transactionManager.begin();
   }
 
+  public static void ensureActive() {
+    log.debug("ensure active transaction");
+    transactionManager.ensureActive();
+  }
+
   public static void commit() {
     log.debug("commit transaction");
     transactionManager.commit();

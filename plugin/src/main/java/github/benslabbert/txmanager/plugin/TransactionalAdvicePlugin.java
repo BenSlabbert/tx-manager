@@ -1,25 +1,17 @@
 /* Licensed under Apache-2.0 2024. */
 package github.benslabbert.txmanager.plugin;
 
+import static net.bytebuddy.matcher.ElementMatchers.declaresAnnotation;
 import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-import github.benslabbert.txmanager.PlatformTransactionManager;
 import github.benslabbert.txmanager.annotation.Transactional;
-import java.util.Arrays;
 import net.bytebuddy.asm.Advice;
-import net.bytebuddy.asm.Advice.AllArguments;
-import net.bytebuddy.asm.Advice.FieldValue;
-import net.bytebuddy.asm.Advice.OnMethodEnter;
-import net.bytebuddy.asm.Advice.OnMethodExit;
-import net.bytebuddy.asm.Advice.Origin;
-import net.bytebuddy.asm.Advice.Thrown;
 import net.bytebuddy.build.Plugin;
 import net.bytebuddy.description.annotation.AnnotationList;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
-import org.slf4j.Logger;
 
 public class TransactionalAdvicePlugin implements Plugin {
 
@@ -30,8 +22,26 @@ public class TransactionalAdvicePlugin implements Plugin {
       ClassFileLocator classFileLocator) {
 
     return builder
-        .method(isAnnotatedWith(named(Transactional.class.getCanonicalName())))
-        .intercept(Advice.to(TryFinallyAdvice.class));
+        .method(
+            isAnnotatedWith(named(Transactional.class.getCanonicalName()))
+                .and(
+                    declaresAnnotation(
+                        annotationDescription -> {
+                          Transactional load =
+                              annotationDescription.prepare(Transactional.class).load();
+                          return load.propagation() == Transactional.Propagation.REQUIRES_NEW;
+                        })))
+        .intercept(Advice.to(RequiresNewAdvice.class))
+        .method(
+            isAnnotatedWith(named(Transactional.class.getCanonicalName()))
+                .and(
+                    declaresAnnotation(
+                        annotationDescription -> {
+                          Transactional load =
+                              annotationDescription.prepare(Transactional.class).load();
+                          return load.propagation() == Transactional.Propagation.REQUIRES_EXISTING;
+                        })))
+        .intercept(Advice.to(RequiresExistingAdvice.class));
   }
 
   @Override
@@ -43,39 +53,5 @@ public class TransactionalAdvicePlugin implements Plugin {
   public boolean matches(TypeDescription typeDefinitions) {
     AnnotationList declaredAnnotations = typeDefinitions.getDeclaredAnnotations();
     return declaredAnnotations.isAnnotationPresent(Transactional.class);
-  }
-
-  private static class TryFinallyAdvice {
-
-    private TryFinallyAdvice() {}
-
-    @OnMethodEnter
-    private static void onEnter(
-        @AllArguments Object[] args,
-        @Origin("#m") String methodName,
-        @FieldValue(value = "log") Logger log) {
-
-      log.debug("Entering advised method: {}", methodName);
-      log.debug("args: {}", args == null ? "null" : Arrays.toString(args));
-
-      PlatformTransactionManager.begin();
-    }
-
-    @OnMethodExit(onThrowable = Exception.class)
-    private static void onExit(
-        @Origin("#m") String methodName,
-        @Thrown Throwable throwable,
-        @FieldValue(value = "log") Logger log) {
-
-      log.info("Exiting advised method: {}", methodName);
-
-      if (throwable != null) {
-        log.error("Exception thrown in advised method: {}", methodName, throwable);
-        PlatformTransactionManager.rollback();
-        return;
-      }
-
-      PlatformTransactionManager.commit();
-    }
   }
 }

@@ -8,4 +8,15 @@ import java.lang.annotation.Target;
 
 @Target(value = {ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.CLASS)
-public @interface Transactional {}
+public @interface Transactional {
+
+  Propagation propagation() default Propagation.REQUIRES_NEW;
+
+  enum Propagation {
+    /** creates a new transaction is none exists */
+    REQUIRES_NEW,
+
+    /** requires an existing transaction to be open, throws if none exists */
+    REQUIRES_EXISTING
+  }
+}
