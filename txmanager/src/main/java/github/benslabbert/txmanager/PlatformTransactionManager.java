@@ -38,4 +38,13 @@ public final class PlatformTransactionManager {
     log.debug("rollback transaction");
     transactionManager.rollback();
   }
+
+  public static void close() throws Exception {
+    if (null == transactionManager) {
+      return;
+    }
+
+    transactionManager.close();
+    transactionManager = null;
+  }
 }
