@@ -5,6 +5,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
 import static net.bytebuddy.matcher.ElementMatchers.isMethod;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
+import github.benslabbert.txmanager.annotation.TimerAdvice;
 import java.util.Arrays;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.asm.Advice.AllArguments;
@@ -32,14 +33,8 @@ public class TimerAdivcePlugin implements Plugin {
     // try to use advice as a decorator instead of an implementation
     // this wraps around the original method without change
     return builder.visit(
-        Advice.to(TimerAdvice.class)
-            .on(
-                isMethod()
-                    .and(
-                        isAnnotatedWith(
-                            named(
-                                github.benslabbert.txmanager.annotation.TimerAdvice.class
-                                    .getCanonicalName())))));
+        Advice.to(TimerAdviceImpl.class)
+            .on(isMethod().and(isAnnotatedWith(named(TimerAdvice.class.getCanonicalName())))));
   }
 
   @Override
@@ -50,14 +45,10 @@ public class TimerAdivcePlugin implements Plugin {
   @Override
   public boolean matches(TypeDescription typeDefinitions) {
     return typeDefinitions.getDeclaredMethods().stream()
-        .anyMatch(
-            f ->
-                f.getDeclaredAnnotations()
-                    .isAnnotationPresent(
-                        github.benslabbert.txmanager.annotation.TimerAdvice.class));
+        .anyMatch(f -> f.getDeclaredAnnotations().isAnnotationPresent(TimerAdvice.class));
   }
 
-  private static final class TimerAdvice {
+  private static final class TimerAdviceImpl {
 
     @OnMethodEnter
     private static void onEnter(
