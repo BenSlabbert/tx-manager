@@ -1,15 +1,14 @@
 /* Licensed under Apache-2.0 2024. */
 package github.benslabbert.txmanager.example;
 
-import static org.slf4j.LoggerFactory.*;
-
 import github.benslabbert.txmanager.annotation.Transactional;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Transactional
-public class Example {
+public class TransactionalExample {
 
-  private static final Logger log = getLogger(Example.class);
+  private static final Logger log = LoggerFactory.getLogger(TransactionalExample.class);
 
   @Transactional(propagation = Transactional.Propagation.REQUIRES_NEW)
   public void requiresNew1() {
