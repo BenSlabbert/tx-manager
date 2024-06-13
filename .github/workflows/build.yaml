@@ -21,5 +21,5 @@ jobs:
         java-version: "22"
         java-package: "jdk"
         cache: "maven"
-    - run: "make M='mvn -s settings.xml' fmtCheck"
-    - run: "make M='mvn -s settings.xml'"
+    - run: "make M='mvn -s settings.xml -T 1C' fmtCheck"
+    - run: "make M='mvn -s settings.xml -T 1C'"
