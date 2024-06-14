@@ -20,6 +20,12 @@
       <artifactId>txmanager</artifactId>
       <version>${revision}</version>
     </dependency>
+    <dependency>
+      <groupId>github.benslabbert.txmanager</groupId>
+      <artifactId>plugin</artifactId>
+      <version>${revision}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
