@@ -4,21 +4,29 @@ package github.benslabbert.txmanager.plugin;
 import github.benslabbert.txmanager.PlatformTransactionManager;
 import java.util.Arrays;
 import net.bytebuddy.asm.Advice;
+import net.bytebuddy.asm.Advice.AllArguments;
+import net.bytebuddy.asm.Advice.FieldValue;
+import net.bytebuddy.asm.Advice.OnMethodEnter;
+import net.bytebuddy.asm.Advice.Origin;
 import org.slf4j.Logger;
 
-public class RequiresExistingAdvice {
+class RequiresExistingAdvice {
 
   private RequiresExistingAdvice() {}
 
-  @Advice.OnMethodEnter
+  @OnMethodEnter
   private static void onEnter(
-      @Advice.AllArguments(nullIfEmpty = true) Object[] args,
-      @Advice.Origin("#m") String methodName,
-      @Advice.FieldValue(value = "log") Logger log) {
+      @AllArguments(nullIfEmpty = true) Object[] args,
+      @Origin("#m") String methodName,
+      @FieldValue(value = "log") Logger log) {
 
-    log.debug("Entering advised method: {}", methodName);
-    log.debug("args: {}", args == null ? "null" : Arrays.toString(args));
+    if (log.isDebugEnabled()) {
+      log.debug("Entering advised method: {}", methodName);
+      log.debug("args: {}", args == null ? "null" : Arrays.toString(args));
+    }
 
     PlatformTransactionManager.ensureActive();
+
+    log.debug("transaction active method: {}", methodName);
   }
 }
