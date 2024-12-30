@@ -3,7 +3,6 @@ package github.benslabbert.txmanager.plugin;
 
 import github.benslabbert.txmanager.PlatformTransactionManager;
 import java.util.Arrays;
-import net.bytebuddy.asm.Advice;
 import net.bytebuddy.asm.Advice.AllArguments;
 import net.bytebuddy.asm.Advice.FieldValue;
 import net.bytebuddy.asm.Advice.OnMethodEnter;
