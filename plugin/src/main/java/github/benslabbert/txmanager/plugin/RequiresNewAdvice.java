@@ -2,9 +2,10 @@
 package github.benslabbert.txmanager.plugin;
 
 import github.benslabbert.txmanager.annotation.Transactional;
+import java.util.Arrays;
 import net.bytebuddy.asm.Advice;
 
-public class RequiresNewAdvice {
+class RequiresNewAdvice {
 
   @Advice.OnMethodEnter
   public static void onEnter(@Transactional Transactional transactional) {
