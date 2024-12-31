@@ -7,10 +7,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Target(value = {ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Transactional {
 
   Propagation propagation() default Propagation.REQUIRES_NEW;
+
+  Class<?>[] doNotRollBackFor() default {};
 
   enum Propagation {
     /** creates a new transaction is none exists */

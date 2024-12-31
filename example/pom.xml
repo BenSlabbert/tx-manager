@@ -16,6 +16,10 @@
       <version>${revision}</version>
     </dependency>
     <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+    <dependency>
       <groupId>github.benslabbert.txmanager</groupId>
       <artifactId>txmanager</artifactId>
       <version>${revision}</version>
@@ -50,6 +54,29 @@
             <goals>
               <goal>transform</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <Main-Class>github.benslabbert.txmanager.example.Main</Main-Class>
+                    <X-Compile-Source-JDK>${java.version}</X-Compile-Source-JDK>
+                    <X-Compile-Target-JDK>${java.version}</X-Compile-Target-JDK>
+                  </manifestEntries>
+                </transformer>
+              </transformers>
+            </configuration>
           </execution>
         </executions>
       </plugin>
