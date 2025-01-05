@@ -2,16 +2,17 @@
 package github.benslabbert.txmanager.plugin;
 
 import github.benslabbert.txmanager.annotation.Transactional;
-import java.util.Arrays;
 import net.bytebuddy.asm.Advice;
+import org.slf4j.Logger;
 
 class RequiresNewAdvice {
 
   @Advice.OnMethodEnter
-  public static void onEnter(@Transactional Transactional transactional) {
+  public static void onEnter(
+      @Advice.FieldValue(value = "log") Logger log,
+      @CustomAnnotation Transactional.Propagation propagation) {
     // Use the properties here
-    System.out.println("Propagation: " + transactional.propagation());
-    System.out.println("doNotRollBackFor: " + Arrays.toString(transactional.doNotRollBackFor()));
+    log.info("Propagation: {}", propagation);
   }
 
   @Advice.OnMethodExit

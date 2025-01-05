@@ -1,94 +1,61 @@
 /* Licensed under Apache-2.0 2024. */
 package github.benslabbert.txmanager.plugin;
 
-import static net.bytebuddy.matcher.ElementMatchers.declaresAnnotation;
-import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
-import static net.bytebuddy.matcher.ElementMatchers.named;
-
 import github.benslabbert.txmanager.annotation.Transactional;
+import java.util.Arrays;
+import java.util.List;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.build.Plugin;
-import net.bytebuddy.description.annotation.AnnotationDescription;
-import net.bytebuddy.description.annotation.AnnotationList;
+import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
 
-class TransactionalAdvicePlugin implements Plugin {
+public class TransactionalAdvicePlugin implements Plugin {
+
+  @Override
+  public boolean matches(TypeDescription target) {
+    return target.getDeclaredMethods().stream()
+        .anyMatch(s -> s.getDeclaredAnnotations().isAnnotationPresent(Transactional.class));
+  }
 
   @Override
   public DynamicType.Builder<?> apply(
-      DynamicType.Builder<?> builder,
-      TypeDescription typeDescription,
-      ClassFileLocator classFileLocator) {
+      DynamicType.Builder<?> builder, TypeDescription target, ClassFileLocator classFileLocator) {
 
-    return builder
-        .method(
-            isAnnotatedWith(named(Transactional.class.getCanonicalName()))
-                .and(
-                    declaresAnnotation(
-                        annotationDescription -> {
-                          Transactional load =
-                              annotationDescription.prepare(Transactional.class).load();
-                          return load.propagation() == Transactional.Propagation.REQUIRES_NEW;
-                        })))
-        .intercept(
-            Advice.withCustomMapping()
-                .bind(
-                    Transactional.class,
-                    new AnnotationDescription.Loadable<Transactional>() {
-                      @Override
-                      public Class<Transactional> getAnnotationType() {
-                        return Transactional.class;
-                      }
+    System.err.println("processing: " + target);
+    List<MethodDescription.InDefinedShape> transactionalMethods =
+        target.getDeclaredMethods().stream()
+            .filter(s -> s.getDeclaredAnnotations().isAnnotationPresent(Transactional.class))
+            .toList();
 
-                      @Override
-                      public Transactional load() {
-                        return annotationDescription.prepare(Transactional.class).load();
-                      }
+    if (transactionalMethods.isEmpty()) {
+      System.err.println("no transactional methods found");
+      return builder;
+    }
 
-                      @Override
-                      public boolean isDocumented() {
-                        return true;
-                      }
+    for (MethodDescription.InDefinedShape tm : transactionalMethods) {
+      System.err.println("processing: " + tm);
+      Transactional transactional = tm.getDeclaredAnnotations().ofType(Transactional.class).load();
+      Class<?>[] doNotRollBackFor = transactional.doNotRollBackFor();
+      Transactional.Propagation propagation = transactional.propagation();
+      System.err.println("@Transactional doNotRollBackFor: " + Arrays.toString(doNotRollBackFor));
+      System.err.println("@Transactional propagation: " + propagation);
 
-                      @Override
-                      public boolean isInherited() {
-                        return false;
-                      }
+      builder =
+          builder
+              .method(md -> md.equals(tm))
+              .intercept(
+                  Advice.withCustomMapping()
+                      .bind(CustomAnnotation.class, propagation)
+                      .to(RequiresNewAdvice.class));
+    }
 
-                      @Override
-                      public boolean isSupportedOn(java.lang.String s) {
-                        return false;
-                      }
-
-                      @Override
-                      public boolean isSupportedOn(java.lang.annotation.ElementType e) {
-                        return false;
-                      }
-                    })
-                .to(RequiresNewAdvice.class))
-        .method(
-            isAnnotatedWith(named(Transactional.class.getCanonicalName()))
-                .and(
-                    declaresAnnotation(
-                        annotationDescription -> {
-                          Transactional load =
-                              annotationDescription.prepare(Transactional.class).load();
-                          return load.propagation() == Transactional.Propagation.REQUIRES_EXISTING;
-                        })))
-        .intercept(Advice.to(RequiresExistingAdvice.class));
+    return builder;
   }
 
   @Override
   public void close() {
     // nothing open
-  }
-
-  @Override
-  public boolean matches(TypeDescription typeDefinitions) {
-    AnnotationList declaredAnnotations = typeDefinitions.getDeclaredAnnotations();
-    return declaredAnnotations.isAnnotationPresent(Transactional.class);
-    // Implement any necessary cleanup here
   }
 }
