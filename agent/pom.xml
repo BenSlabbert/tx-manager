@@ -7,7 +7,7 @@
     <version>${revision}</version>
   </parent>
 
-  <artifactId>example</artifactId>
+  <artifactId>agent</artifactId>
 
   <properties>
     <finalName>example</finalName>
@@ -20,11 +20,6 @@
     </dependency>
     <dependency>
       <groupId>github.benslabbert.txmanager</groupId>
-      <artifactId>agent</artifactId>
-      <version>${revision}</version>
-    </dependency>
-    <dependency>
-      <groupId>github.benslabbert.txmanager</groupId>
       <artifactId>annotation</artifactId>
       <version>${revision}</version>
     </dependency>
@@ -34,34 +29,14 @@
       <version>${revision}</version>
     </dependency>
     <dependency>
-      <groupId>github.benslabbert.txmanager</groupId>
-      <artifactId>plugin</artifactId>
-      <version>${revision}</version>
-      <scope>provided</scope>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
     </dependency>
   </dependencies>
 
   <build>
     <finalName>${finalName}</finalName>
     <plugins>
-      <plugin>
-        <groupId>net.bytebuddy</groupId>
-        <artifactId>byte-buddy-maven-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>github.benslabbert.txmanager</groupId>
-            <artifactId>plugin</artifactId>
-            <version>${revision}</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <goals>
-              <goal>transform</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -76,7 +51,7 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
-                    <Main-Class>github.benslabbert.txmanager.example.Main</Main-Class>
+                    <Premain-Class>github.benslabbert.txmanager.agent.TxManagerAgent</Premain-Class>
                     <X-Compile-Source-JDK>${java.version}</X-Compile-Source-JDK>
                     <X-Compile-Target-JDK>${java.version}</X-Compile-Target-JDK>
                   </manifestEntries>
