@@ -2,8 +2,7 @@
 package github.benslabbert.txmanager.plugin;
 
 import github.benslabbert.txmanager.PlatformTransactionManager;
-import java.util.Arrays;
-import net.bytebuddy.asm.Advice.AllArguments;
+import github.benslabbert.txmanager.annotation.Transactional;
 import net.bytebuddy.asm.Advice.FieldValue;
 import net.bytebuddy.asm.Advice.OnMethodEnter;
 import net.bytebuddy.asm.Advice.Origin;
@@ -14,14 +13,13 @@ class RequiresExistingAdvice {
   private RequiresExistingAdvice() {}
 
   @OnMethodEnter
-  private static void onEnter(
-      @AllArguments(nullIfEmpty = true) Object[] args,
+  static void onEnter(
       @Origin("#m") String methodName,
+      @TransactionPropagation Transactional.Propagation propagation,
       @FieldValue(value = "log") Logger log) {
 
     if (log.isDebugEnabled()) {
-      log.debug("Entering advised method: {}", methodName);
-      log.debug("args: {}", args == null ? "null" : Arrays.toString(args));
+      log.debug("Entering advised method: {} with propagation: {}", methodName, propagation);
     }
 
     PlatformTransactionManager.ensureActive();
