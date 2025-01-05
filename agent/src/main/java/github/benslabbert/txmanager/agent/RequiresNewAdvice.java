@@ -1,5 +1,5 @@
 /* Licensed under Apache-2.0 2024. */
-package github.benslabbert.txmanager.plugin;
+package github.benslabbert.txmanager.agent;
 
 import github.benslabbert.txmanager.PlatformTransactionManager;
 import github.benslabbert.txmanager.annotation.Transactional.Propagation;

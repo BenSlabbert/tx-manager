@@ -1,5 +1,5 @@
 /* Licensed under Apache-2.0 2024. */
-package github.benslabbert.txmanager.plugin;
+package github.benslabbert.txmanager.agent;
 
 import github.benslabbert.txmanager.PlatformTransactionManager;
 import github.benslabbert.txmanager.annotation.Transactional;
@@ -8,7 +8,7 @@ import net.bytebuddy.asm.Advice.OnMethodEnter;
 import net.bytebuddy.asm.Advice.Origin;
 import org.slf4j.Logger;
 
-class RequiresExistingAdvice {
+final class RequiresExistingAdvice {
 
   private RequiresExistingAdvice() {}
 
