@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(value = {ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER})
+@Target(value = {ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Transactional {
 

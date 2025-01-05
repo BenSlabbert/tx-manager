@@ -8,7 +8,6 @@ import github.benslabbert.txmanager.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Transactional
 class TransactionalExample {
 
   private static final Logger log = LoggerFactory.getLogger(TransactionalExample.class);
