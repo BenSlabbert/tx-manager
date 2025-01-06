@@ -7,10 +7,10 @@
     <version>${revision}</version>
   </parent>
 
-  <artifactId>example</artifactId>
+  <artifactId>agent-example</artifactId>
 
   <properties>
-    <finalName>example</finalName>
+    <finalName>agent-example</finalName>
   </properties>
 
   <dependencies>
@@ -33,35 +33,11 @@
       <artifactId>txmanager</artifactId>
       <version>${revision}</version>
     </dependency>
-    <dependency>
-      <groupId>github.benslabbert.txmanager</groupId>
-      <artifactId>plugin</artifactId>
-      <version>${revision}</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>
     <finalName>${finalName}</finalName>
     <plugins>
-      <plugin>
-        <groupId>net.bytebuddy</groupId>
-        <artifactId>byte-buddy-maven-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>github.benslabbert.txmanager</groupId>
-            <artifactId>plugin</artifactId>
-            <version>${revision}</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <goals>
-              <goal>transform</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>

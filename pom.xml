@@ -20,8 +20,9 @@
     <module>annotation</module>
     <module>plugin</module>
     <module>txmanager</module>
-    <module>example</module>
+    <module>plugin-example</module>
     <module>agent</module>
+    <module>agent-example</module>
   </modules>
 
   <distributionManagement>

@@ -8,9 +8,9 @@ import github.benslabbert.txmanager.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class TransactionalExample {
+class Example {
 
-  private static final Logger log = LoggerFactory.getLogger(TransactionalExample.class);
+  private static final Logger log = LoggerFactory.getLogger(Example.class);
 
   @Transactional(propagation = REQUIRES_NEW)
   void requiresNew1() {

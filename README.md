@@ -10,15 +10,15 @@ This removes the requirement to transform them later during runtime.
 
 ## Showcase
 
-Run the example with the agent:
+Run the examples with the agent:
 
 ```shell
-java -javaagent:agent/target/agent-uber.jar=hello -jar example/target/example-uber.jar
+java -javaagent:agent/target/agent-uber.jar=hello -jar agent-example/target/agent-example-uber.jar
 ```
 
 or without the agent:
 
 ```shell
-java -jar example/target/example-uber.jar
+java -jar plugin-example/target/plugin-example-uber.jar
 ```
 
