@@ -13,7 +13,7 @@ public class Main {
   public static void main(String[] args) throws Exception {
     PlatformTransactionManager.setTransactionManager(getTransactionManager());
 
-    TransactionalExample example = new TransactionalExample();
+    Example example = new Example();
     example.requiresNew1();
     example.requiresNew2();
 
