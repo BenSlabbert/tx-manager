@@ -1,8 +1,12 @@
 /* Licensed under Apache-2.0 2024. */
 package github.benslabbert.txmanager.agent;
 
+import static java.util.stream.Collectors.toSet;
+
 import github.benslabbert.txmanager.PlatformTransactionManager;
 import github.benslabbert.txmanager.annotation.Transactional.Propagation;
+import java.util.Arrays;
+import java.util.Set;
 import net.bytebuddy.asm.Advice.FieldValue;
 import net.bytebuddy.asm.Advice.OnMethodEnter;
 import net.bytebuddy.asm.Advice.OnMethodExit;
@@ -33,7 +37,8 @@ final class RequiresNewAdvice {
   static void onExit(
       @FieldValue(value = "log") Logger log,
       @Origin("#m") String methodName,
-      @TransactionDoNotRollBackFor String classes,
+      @TransactionIgnore String ignore,
+      @TransactionDoNotRollBackFor String doNotRollBackFor,
       @TransactionPropagation Propagation propagation,
       @Thrown(readOnly = false) Throwable throwable) {
 
@@ -52,18 +57,23 @@ final class RequiresNewAdvice {
     }
 
     log.error("Exception thrown in advised method: {}", methodName, throwable);
-    for (var clazz : classes.split(",")) {
-      if (clazz.equals(throwable.getClass().getCanonicalName())) {
-        log.error(
-            "Transaction will not rollback as thrown exception {} matches: {}",
-            throwable.getClass().getCanonicalName(),
-            clazz);
-        PlatformTransactionManager.commit();
-        // set this to null otherwise it will be thrown later
-        throwable = null;
-        return;
-      }
+
+    String throwableCanonicalName = throwable.getClass().getCanonicalName();
+    Set<String> doNoRollBackSet = Arrays.stream(doNotRollBackFor.split(",")).collect(toSet());
+    Set<String> ignoreSet = Arrays.stream(ignore.split(",")).collect(toSet());
+
+    if (ignoreSet.contains(throwableCanonicalName)) {
+      // tmp var as the logging may be lazily evaluated and show null
+      log.warn("Ignoring exception", throwable);
+      // set this to null otherwise it will be thrown later
+      throwable = null;
     }
-    PlatformTransactionManager.rollback();
+
+    if (doNoRollBackSet.contains(throwableCanonicalName)) {
+      log.error("Transaction will not rollback for exception {}", throwableCanonicalName);
+      PlatformTransactionManager.commit();
+    } else {
+      PlatformTransactionManager.rollback();
+    }
   }
 }

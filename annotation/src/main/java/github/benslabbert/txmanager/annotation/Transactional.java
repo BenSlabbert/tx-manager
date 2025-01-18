@@ -15,9 +15,22 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Transactional {
 
+  /** Specify if the transaction should be reused, existing or a new one created. */
   Propagation propagation() default Propagation.REQUIRES_NEW;
 
-  Class<?>[] doNotRollBackFor() default {};
+  /**
+   * Specify for which exceptions the current transaction should commit and not rollback for.<br>
+   * The exception will still be thrown.
+   */
+  Class<? extends Exception>[] doNotRollBackFor() default {};
+
+  /**
+   * Specify for which exceptions the current transaction should ignore.<br>
+   * These exceptions will not be thrown, but rather handled by the advice.<br>
+   * Depending on {@link Transactional#doNotRollBackFor()} the transaction may or may not be
+   * committed.
+   */
+  Class<? extends Exception>[] ignore() default {};
 
   enum Propagation {
     /** creates a new transaction is none exists */

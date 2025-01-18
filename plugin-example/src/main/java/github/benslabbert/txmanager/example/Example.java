@@ -12,6 +12,33 @@ class Example {
 
   private static final Logger log = LoggerFactory.getLogger(Example.class);
 
+  @Transactional
+  void simple() {
+    log.info("simple");
+  }
+
+  @Transactional(ignore = IllegalStateException.class)
+  void ignoreNoCommit() {
+    log.info("ignoreNoCommit");
+    throw new IllegalStateException("exceptedException");
+  }
+
+  @Transactional(
+      ignore = IllegalStateException.class,
+      doNotRollBackFor = IllegalStateException.class)
+  void ignoreWithCommit() {
+    log.info("ignoreWithCommit");
+    throw new IllegalStateException("exceptedException");
+  }
+
+  @Transactional(
+      ignore = IllegalStateException.class,
+      doNotRollBackFor = IllegalStateException.class)
+  void ignoreThrows() {
+    log.info("ignoreThrows");
+    throw new IllegalArgumentException("exceptedException");
+  }
+
   @Transactional(propagation = REQUIRES_NEW)
   void requiresNew1() {
     log.info("requiresNew1");

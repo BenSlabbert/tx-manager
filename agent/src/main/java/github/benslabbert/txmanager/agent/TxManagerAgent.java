@@ -96,6 +96,10 @@ public final class TxManagerAgent {
           Arrays.stream(transactional.doNotRollBackFor())
               .map(Class::getCanonicalName)
               .collect(Collectors.joining(","));
+      String ignore =
+          Arrays.stream(transactional.ignore())
+              .map(Class::getCanonicalName)
+              .collect(Collectors.joining(","));
       Transactional.Propagation propagation = transactional.propagation();
 
       // there are two options we can apply advice as an implementation or as a decorator:
@@ -110,6 +114,7 @@ public final class TxManagerAgent {
                       Advice.withCustomMapping()
                           .bind(TransactionPropagation.class, propagation)
                           .bind(TransactionDoNotRollBackFor.class, doNotRollBackFor)
+                          .bind(TransactionIgnore.class, ignore)
                           .to(RequiresNewAdvice.class)
                           .on(md -> md.equals(tm)));
 
@@ -133,6 +138,7 @@ public final class TxManagerAgent {
                           Advice.withCustomMapping()
                               .bind(TransactionPropagation.class, propagation)
                               .bind(TransactionDoNotRollBackFor.class, doNotRollBackFor)
+                              .bind(TransactionIgnore.class, ignore)
                               .to(RequiresNewAdvice.class));
 
           case REQUIRES_EXISTING ->
