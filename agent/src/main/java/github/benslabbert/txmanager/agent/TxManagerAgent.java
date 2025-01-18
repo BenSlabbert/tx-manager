@@ -1,7 +1,10 @@
 /* Licensed under Apache-2.0 2025. */
 package github.benslabbert.txmanager.agent;
 
+import static github.benslabbert.txmanager.annotation.AlreadyTransformed.Transformer.AGENT;
+
 import github.benslabbert.txmanager.annotation.AlreadyTransformed;
+import github.benslabbert.txmanager.annotation.AlreadyTransformed.Transformer;
 import github.benslabbert.txmanager.annotation.Transactional;
 import java.lang.instrument.Instrumentation;
 import java.util.Arrays;
@@ -36,9 +39,7 @@ public final class TxManagerAgent {
       new AgentBuilder.Default()
           .with(AgentListener.create())
           .type(TxManagerAgent.matcher())
-          .transform(
-              (builder, target, cl, jm, pm) ->
-                  apply(builder, target, AlreadyTransformed.Transformer.AGENT))
+          .transform((builder, target, _, _, _) -> apply(builder, target, AGENT))
           .installOn(instrumentation);
     } catch (Exception e) {
       log.info(e.getMessage());
@@ -54,7 +55,7 @@ public final class TxManagerAgent {
   }
 
   public static Builder<?> apply(
-      Builder<?> builder, TypeDescription target, AlreadyTransformed.Transformer transformer) {
+      Builder<?> builder, TypeDescription target, Transformer transformer) {
     // todo:
     //  for agent mode we can get this from agentArgument
     //  for plugin mode we can get this from System.getProperty
