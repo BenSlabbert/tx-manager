@@ -3,6 +3,7 @@ package github.benslabbert.txmanager.example;
 
 import github.benslabbert.txmanager.PlatformTransactionManager;
 import github.benslabbert.txmanager.TransactionManager;
+import java.sql.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,14 @@ public class Main {
       private int txCount = 0;
 
       @Override
+      public Connection getConnection() {
+        if (txCount < 1) {
+          throw new IllegalStateException("getConnection: no active transaction");
+        }
+        return null;
+      }
+
+      @Override
       public void begin() {
         txCount++;
         log.info("begin transaction: {}", txCount);
@@ -65,6 +74,24 @@ public class Main {
         }
         txCount--;
         log.info("commit transaction: {}", txCount);
+      }
+
+      @Override
+      public void beforeCommit(Runnable runnable) {
+        if (txCount < 1) {
+          throw new IllegalStateException("beforeCommit: no active transaction");
+        }
+        log.info("beforeCommit");
+        runnable.run();
+      }
+
+      @Override
+      public void afterCommit(Runnable runnable) {
+        if (txCount != 1) {
+          throw new IllegalStateException("afterCommit: active transaction");
+        }
+        log.info("afterCommit");
+        runnable.run();
       }
 
       @Override

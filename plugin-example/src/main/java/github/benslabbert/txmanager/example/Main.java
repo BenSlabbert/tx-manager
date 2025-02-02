@@ -3,6 +3,7 @@ package github.benslabbert.txmanager.example;
 
 import github.benslabbert.txmanager.PlatformTransactionManager;
 import github.benslabbert.txmanager.TransactionManager;
+import java.sql.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,11 @@ public class Main {
       log.error("exception while calling example.requiresExisting: ", e);
     }
 
-    example.commitWithExpectedException();
+    try {
+      example.commitWithExpectedException();
+    } catch (Exception e) {
+      log.error("exception while calling example.commitWithExpectedException: ", e);
+    }
 
     try {
       example.rollBackForUnplannedException();
@@ -43,6 +48,14 @@ public class Main {
   private static TransactionManager getTransactionManager() {
     return new TransactionManager() {
       private int txCount = 0;
+
+      @Override
+      public Connection getConnection() {
+        if (txCount < 1) {
+          throw new IllegalStateException("getConnection: no active transaction");
+        }
+        return null;
+      }
 
       @Override
       public void begin() {
@@ -65,6 +78,24 @@ public class Main {
         }
         txCount--;
         log.info("commit transaction: {}", txCount);
+      }
+
+      @Override
+      public void beforeCommit(Runnable runnable) {
+        if (txCount < 1) {
+          throw new IllegalStateException("beforeCommit: no active transaction");
+        }
+        log.info("beforeCommit");
+        runnable.run();
+      }
+
+      @Override
+      public void afterCommit(Runnable runnable) {
+        if (txCount != 1) {
+          throw new IllegalStateException("afterCommit: active transaction");
+        }
+        log.info("afterCommit");
+        runnable.run();
       }
 
       @Override
