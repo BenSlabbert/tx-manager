@@ -39,6 +39,16 @@ public final class PlatformTransactionManager {
     transactionManager.rollback();
   }
 
+  public static void beforeCommit(Runnable runnable) {
+    log.debug("add before commit task");
+    transactionManager.beforeCommit(runnable);
+  }
+
+  public static void afterCommit(Runnable runnable) {
+    log.debug("add after commit task");
+    transactionManager.afterCommit(runnable);
+  }
+
   public static void close() throws Exception {
     if (null == transactionManager) {
       return;
