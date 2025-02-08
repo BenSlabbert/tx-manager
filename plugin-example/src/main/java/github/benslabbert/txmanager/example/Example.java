@@ -98,9 +98,19 @@ class Example {
     return () -> {};
   }
 
+  @BeforeCommit
+  public void beforeCommitVoid() {
+    log.info("beforeCommitVoid");
+  }
+
   @AfterCommit
   public Runnable afterCommit() {
     log.info("afterCommit");
     return () -> {};
+  }
+
+  @AfterCommit
+  public void afterCommitVoid() {
+    log.info("afterCommitVoid");
   }
 }

@@ -3,6 +3,8 @@ package github.benslabbert.txmanager.agent;
 
 import static github.benslabbert.txmanager.annotation.AlreadyTransformed.Transformer.AGENT;
 
+import github.benslabbert.txmanager.agent.delegate.AfterCommitDelegator;
+import github.benslabbert.txmanager.agent.delegate.BeforeCommitDelegator;
 import github.benslabbert.txmanager.annotation.AfterCommit;
 import github.benslabbert.txmanager.annotation.AlreadyTransformed;
 import github.benslabbert.txmanager.annotation.AlreadyTransformed.Transformer;
@@ -21,6 +23,7 @@ import net.bytebuddy.description.method.MethodDescription.InDefinedShape;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.description.type.TypeDescription.Generic;
 import net.bytebuddy.dynamic.DynamicType.Builder;
+import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
@@ -120,9 +123,6 @@ public final class TxManagerAgent {
       if (null != transactional) {
         builder = handleTransactional(builder, tm, transactional.load());
       }
-      // for both below we support null or Runnable
-      // if null we need OnMethodEnter to wrap the implementation
-      // if Runnable we can use on OnMethodExit as we have it now
 
       Generic returnType = tm.getReturnType();
       log.info(
@@ -131,20 +131,26 @@ public final class TxManagerAgent {
           returnType.equals(GENERIC_VOID),
           returnType.equals(GENERIC_RUNNABLE));
 
-      // todo:
-      //  instead of advice,use net.bytebuddy.implementation.MethodDelegation
       if (null != beforeCommit) {
         if (GENERIC_RUNNABLE.equals(returnType)) {
           builder = builder.visit(getBeforeCommitAdviceRunnable().on(md -> md.equals(tm)));
         } else if (GENERIC_VOID.equals(returnType)) {
-          log.error("unable to advise void return methods");
+          MethodDelegation methodDelegation = MethodDelegation.to(BeforeCommitDelegator.class);
+          builder = builder.method(md -> md.equals(tm)).intercept(methodDelegation);
         } else {
-          log.error("unable to advise {} return methods", returnType);
+          log.error("beforeCommit: unable to advise {} return method {}d", returnType, tm);
         }
       }
 
       if (null != afterCommit) {
-        builder = builder.visit(getAfterCommitAdviceRunnable().on(md -> md.equals(tm)));
+        if (GENERIC_RUNNABLE.equals(returnType)) {
+          builder = builder.visit(getAfterCommitAdviceRunnable().on(md -> md.equals(tm)));
+        } else if (GENERIC_VOID.equals(returnType)) {
+          MethodDelegation methodDelegation = MethodDelegation.to(AfterCommitDelegator.class);
+          builder = builder.method(md -> md.equals(tm)).intercept(methodDelegation);
+        } else {
+          log.error("afterCommit: unable to advise {} return method {}d", returnType, tm);
+        }
       }
     }
 

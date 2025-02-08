@@ -2,6 +2,7 @@
 package github.benslabbert.txmanager.example;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -111,8 +112,20 @@ class ExampleTest {
   }
 
   @Test
+  void beforeCommitVoid() {
+    example.beforeCommitVoid();
+    verify(tm).beforeCommit(any());
+  }
+
+  @Test
   void afterCommit() {
     Runnable runnable = example.afterCommit();
     verify(tm).afterCommit(runnable);
+  }
+
+  @Test
+  void afterCommitVoid() {
+    example.afterCommitVoid();
+    verify(tm).afterCommit(any());
   }
 }
