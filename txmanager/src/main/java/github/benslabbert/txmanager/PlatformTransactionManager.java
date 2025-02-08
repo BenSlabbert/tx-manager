@@ -4,6 +4,11 @@ package github.benslabbert.txmanager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Provides static access to the underlying implementation of {@link TransactionManager}<br>
+ * This is mainly used by the provided ByteBuddy Agent to apply advice, however, client code can use
+ * it as well.
+ */
 public final class PlatformTransactionManager {
 
   private PlatformTransactionManager() {}
@@ -54,7 +59,10 @@ public final class PlatformTransactionManager {
       return;
     }
 
-    transactionManager.close();
-    transactionManager = null;
+    try {
+      transactionManager.close();
+    } finally {
+      transactionManager = null;
+    }
   }
 }
