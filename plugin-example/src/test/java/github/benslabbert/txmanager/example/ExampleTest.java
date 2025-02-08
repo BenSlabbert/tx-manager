@@ -103,4 +103,16 @@ class ExampleTest {
 
     verify(tm).ensureActive();
   }
+
+  @Test
+  void beforeCommit() {
+    Runnable runnable = example.beforeCommit();
+    verify(tm).beforeCommit(runnable);
+  }
+
+  @Test
+  void afterCommit() {
+    Runnable runnable = example.afterCommit();
+    verify(tm).afterCommit(runnable);
+  }
 }

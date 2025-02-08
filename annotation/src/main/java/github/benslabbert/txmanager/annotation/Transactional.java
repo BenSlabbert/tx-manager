@@ -37,6 +37,12 @@ public @interface Transactional {
     REQUIRES_NEW,
 
     /** requires an existing transaction to be open, throws if none exists */
-    REQUIRES_EXISTING
+    REQUIRES_EXISTING,
+
+    /**
+     * use a save point inside an existing transaction<br>
+     * requires an existing transaction.
+     */
+    SAVE_POINT
   }
 }

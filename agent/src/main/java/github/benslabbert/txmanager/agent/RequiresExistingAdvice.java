@@ -2,7 +2,7 @@
 package github.benslabbert.txmanager.agent;
 
 import github.benslabbert.txmanager.PlatformTransactionManager;
-import github.benslabbert.txmanager.annotation.Transactional;
+import github.benslabbert.txmanager.annotation.Transactional.Propagation;
 import net.bytebuddy.asm.Advice.FieldValue;
 import net.bytebuddy.asm.Advice.OnMethodEnter;
 import net.bytebuddy.asm.Advice.Origin;
@@ -14,8 +14,8 @@ final class RequiresExistingAdvice {
 
   @OnMethodEnter
   static void onEnter(
-      @Origin("#m") String methodName,
-      @TransactionPropagation Transactional.Propagation propagation,
+      @Origin("#t\\##m") String methodName,
+      @TransactionPropagation Propagation propagation,
       @FieldValue(value = "log") Logger log) {
 
     if (log.isDebugEnabled()) {

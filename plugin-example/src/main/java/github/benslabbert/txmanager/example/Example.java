@@ -4,6 +4,8 @@ package github.benslabbert.txmanager.example;
 import static github.benslabbert.txmanager.annotation.Transactional.Propagation.REQUIRES_EXISTING;
 import static github.benslabbert.txmanager.annotation.Transactional.Propagation.REQUIRES_NEW;
 
+import github.benslabbert.txmanager.annotation.AfterCommit;
+import github.benslabbert.txmanager.annotation.BeforeCommit;
 import github.benslabbert.txmanager.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,5 +90,17 @@ class Example {
   private void privateRequiresNewThrows() {
     log.info("privateRequiresNewThrows");
     throw new IllegalStateException("planned");
+  }
+
+  @BeforeCommit
+  public Runnable beforeCommit() {
+    log.info("beforeCommit");
+    return () -> {};
+  }
+
+  @AfterCommit
+  public Runnable afterCommit() {
+    log.info("afterCommit");
+    return () -> {};
   }
 }

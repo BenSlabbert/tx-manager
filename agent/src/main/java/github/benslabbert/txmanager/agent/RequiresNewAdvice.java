@@ -21,7 +21,7 @@ final class RequiresNewAdvice {
   @OnMethodEnter
   static void onEnter(
       @FieldValue(value = "log") Logger log,
-      @Origin("#m") String methodName,
+      @Origin("#t\\##m") String methodName,
       @TransactionPropagation Propagation propagation) {
     // Use the properties here
     if (log.isDebugEnabled()) {
@@ -36,7 +36,7 @@ final class RequiresNewAdvice {
   @OnMethodExit(onThrowable = Exception.class)
   static void onExit(
       @FieldValue(value = "log") Logger log,
-      @Origin("#m") String methodName,
+      @Origin("#t\\##m") String methodName,
       @TransactionIgnore String ignore,
       @TransactionDoNotRollBackFor String doNotRollBackFor,
       @TransactionPropagation Propagation propagation,
