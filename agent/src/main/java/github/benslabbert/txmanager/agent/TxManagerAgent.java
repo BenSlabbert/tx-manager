@@ -49,7 +49,7 @@ public final class TxManagerAgent {
       new AgentBuilder.Default()
           .with(AgentListener.create())
           .type(TxManagerAgent.matcher())
-          .transform((builder, target, _, _, _) -> apply(builder, target, AGENT))
+          .transform((builder, target, a, b, c) -> apply(builder, target, AGENT))
           .installOn(instrumentation);
     } catch (Exception e) {
       log.info(e.getMessage());
