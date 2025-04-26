@@ -81,7 +81,7 @@ public final class TxManagerAgent {
   public static Builder<?> apply(
       Builder<?> builder, TypeDescription target, Transformer transformer) {
 
-    List<InDefinedShape> transactionalMethods =
+    List<InDefinedShape> advisedMethods =
         target.getDeclaredMethods().stream()
             .filter(
                 s ->
@@ -91,26 +91,11 @@ public final class TxManagerAgent {
             .filter(s -> !s.getDeclaredAnnotations().isAnnotationPresent(AlreadyTransformed.class))
             .toList();
 
-    builder =
-        builder
-            .method(ElementMatchers.isDeclaredBy(target))
-            .intercept(SuperMethodCall.INSTANCE)
-            .annotateMethod(
-                AnnotationDescription.Builder.ofType(AlreadyTransformed.class)
-                    .define("transformedBy", transformer)
-                    .build())
-            .method(ElementMatchers.isAbstract().and(ElementMatchers.isDeclaredBy(target)))
-            .withoutCode()
-            .annotateMethod(
-                AnnotationDescription.Builder.ofType(AlreadyTransformed.class)
-                    .define("transformedBy", transformer)
-                    .build());
-
-    if (transactionalMethods.isEmpty()) {
+    if (advisedMethods.isEmpty()) {
       return builder;
     }
 
-    for (InDefinedShape tm : transactionalMethods) {
+    for (InDefinedShape tm : advisedMethods) {
       Loadable<Transactional> transactional =
           tm.getDeclaredAnnotations().ofType(Transactional.class);
       Loadable<BeforeCommit> beforeCommit = tm.getDeclaredAnnotations().ofType(BeforeCommit.class);
@@ -120,8 +105,18 @@ public final class TxManagerAgent {
         throw new AnnotationDeclarationException(transactional, beforeCommit, afterCommit);
       }
 
+      builder =
+          builder
+              .method(md -> md.equals(tm))
+              .intercept(SuperMethodCall.INSTANCE)
+              .annotateMethod(alreadyTransformed(transformer))
+              .method(ElementMatchers.isAbstract().and(ElementMatchers.isDeclaredBy(target)))
+              .withoutCode()
+              .annotateMethod(alreadyTransformed(transformer));
+
       if (null != transactional) {
         builder = handleTransactional(builder, tm, transactional.load());
+        continue;
       }
 
       Generic returnType = tm.getReturnType();
@@ -135,8 +130,15 @@ public final class TxManagerAgent {
         if (GENERIC_RUNNABLE.equals(returnType)) {
           builder = builder.visit(getBeforeCommitAdviceRunnable().on(md -> md.equals(tm)));
         } else if (GENERIC_VOID.equals(returnType)) {
+          // MethodDelegation creates a new method implementation that doesn't preserve the
+          // annotations from the original method. This includes the AlreadyTransformed annotation
+          // applied earlier
           MethodDelegation methodDelegation = MethodDelegation.to(BeforeCommitDelegator.class);
-          builder = builder.method(md -> md.equals(tm)).intercept(methodDelegation);
+          builder =
+              builder
+                  .method(md -> md.equals(tm))
+                  .intercept(methodDelegation)
+                  .annotateMethod(alreadyTransformed(transformer));
         } else {
           log.error("beforeCommit: unable to advise {} return method {}d", returnType, tm);
         }
@@ -146,8 +148,15 @@ public final class TxManagerAgent {
         if (GENERIC_RUNNABLE.equals(returnType)) {
           builder = builder.visit(getAfterCommitAdviceRunnable().on(md -> md.equals(tm)));
         } else if (GENERIC_VOID.equals(returnType)) {
+          // MethodDelegation creates a new method implementation that doesn't preserve the
+          // annotations from the original method. This includes the AlreadyTransformed annotation
+          // applied earlier
           MethodDelegation methodDelegation = MethodDelegation.to(AfterCommitDelegator.class);
-          builder = builder.method(md -> md.equals(tm)).intercept(methodDelegation);
+          builder =
+              builder
+                  .method(md -> md.equals(tm))
+                  .intercept(methodDelegation)
+                  .annotateMethod(alreadyTransformed(transformer));
         } else {
           log.error("afterCommit: unable to advise {} return method {}d", returnType, tm);
         }
@@ -155,6 +164,12 @@ public final class TxManagerAgent {
     }
 
     return builder;
+  }
+
+  private static AnnotationDescription alreadyTransformed(Transformer transformer) {
+    return AnnotationDescription.Builder.ofType(AlreadyTransformed.class)
+        .define("transformedBy", transformer)
+        .build();
   }
 
   private static Builder<?> handleTransactional(

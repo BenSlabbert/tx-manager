@@ -14,6 +14,8 @@ class Example {
 
   private static final Logger log = LoggerFactory.getLogger(Example.class);
 
+  public void notAnnotated() {}
+
   @Transactional
   void simple() {
     log.info("simple");
@@ -99,13 +101,30 @@ class Example {
   }
 
   @BeforeCommit
+  private Runnable beforeCommitPrivate() {
+    log.info("beforeCommitPrivate");
+    return () -> {};
+  }
+
+  @BeforeCommit
   public void beforeCommitVoid() {
     log.info("beforeCommitVoid");
   }
 
+  @BeforeCommit
+  private void beforeCommitVoidPrivate() {
+    log.info("beforeCommitVoidPrivate");
+  }
+
   @AfterCommit
-  public Runnable afterCommit() {
+  Runnable afterCommit() {
     log.info("afterCommit");
+    return () -> {};
+  }
+
+  @AfterCommit
+  private Runnable afterCommitPrivate() {
+    log.info("afterCommitPrivate");
     return () -> {};
   }
 
