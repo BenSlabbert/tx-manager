@@ -46,7 +46,7 @@ jobs:
       uses: "github/codeql-action/init@v3"
       with:
         languages: "${{ matrix.language }}"
-    - run: "mvn -s settings.xml spotless:check install"
+    - run: "mvn -s settings.xml spotless:check install -Djava.version=${{ matrix.java-version }}"
     - name: "Perform CodeQL Analysis"
       uses: "github/codeql-action/analyze@v3"
     - name: "Submit Dependency Snapshot"
