@@ -22,25 +22,31 @@ jobs:
       matrix:
         language:
         - "java"
+        java-version:
+        - "21"
+        - "23"
+        distribution:
+        - "zulu"
+        - "temurin"
+        - "semeru"
     steps:
     - uses: "actions/checkout@v4"
-    - name: "Initialize CodeQL"
-      uses: "github/codeql-action/init@v3"
-      with:
-        languages: "${{ matrix.language }}"
-    - name: "Set up JDK 21"
+    - name: "Set up JDK ${{ matrix.java-version }}-${{ matrix.distribution }}"
       uses: "actions/setup-java@v4"
       with:
-        distribution: "zulu"
-        java-version: "21"
+        distribution: "${{ matrix.distribution }}"
+        java-version: "${{ matrix.java-version }}"
         java-package: "jdk"
         cache: "maven"
     - name: "Set up Maven"
       uses: "stCarolas/setup-maven@v5"
       with:
         maven-version: "3.9.9"
-    - run: "make M='mvn -s settings.xml -T 1C' fmtCheck"
-    - run: "make M='mvn -s settings.xml -T 1C'"
+    - name: "Initialize CodeQL"
+      uses: "github/codeql-action/init@v3"
+      with:
+        languages: "${{ matrix.language }}"
+    - run: "mvn -s settings.xml spotless:check install"
     - name: "Perform CodeQL Analysis"
       uses: "github/codeql-action/analyze@v3"
     - name: "Submit Dependency Snapshot"
@@ -48,4 +54,3 @@ jobs:
       with:
         token: "${{ secrets.GH_TOKEN }}"
         maven-args: "-s settings.xml"
-
