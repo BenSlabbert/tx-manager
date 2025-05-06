@@ -47,7 +47,7 @@ final class RequiresNewAdvice {
           "Exiting method: {} with propagation: {} with error ? {}",
           methodName,
           propagation,
-          null == throwable);
+          null != throwable);
     }
 
     if (null == throwable) {
