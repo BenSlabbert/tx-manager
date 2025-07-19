@@ -2,6 +2,7 @@
 package github.benslabbert.txmanager;
 
 import java.sql.Connection;
+import java.util.concurrent.Callable;
 
 public interface TransactionManager extends AutoCloseable {
 
@@ -31,4 +32,27 @@ public interface TransactionManager extends AutoCloseable {
   void afterCommit(Runnable runnable);
 
   void rollback();
+
+  default void executeWithoutResult(Runnable runnable) {
+    try {
+      begin();
+      runnable.run();
+      commit();
+    } catch (Exception e) {
+      rollback();
+      throw e;
+    }
+  }
+
+  default <T> T executeWithResult(Callable<T> callable) {
+    try {
+      begin();
+      T result = callable.call();
+      commit();
+      return result;
+    } catch (Exception e) {
+      rollback();
+      throw new RuntimeException(e);
+    }
+  }
 }
