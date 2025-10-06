@@ -5,7 +5,7 @@
   <parent>
     <groupId>github.benslabbert</groupId>
     <artifactId>vertx-dagger-bom</artifactId>
-    <version>3.102.0</version>
+    <version>3.103.0</version>
   </parent>
 
   <groupId>github.benslabbert.txmanager</groupId>
@@ -35,7 +35,7 @@
   </distributionManagement>
 
   <properties>
-    <asm.version>9.8</asm.version>
+    <asm.version>9.9</asm.version>
 
     <!--plugins-->
     <flatten-maven-plugin.version>1.7.0</flatten-maven-plugin.version>
